@@ -1,0 +1,9 @@
+/* import tailwind css */
+@import "tailwindcss";
+
+/* import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Hind Madurai', sans-serif;
+}
