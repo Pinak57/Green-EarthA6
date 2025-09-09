@@ -1,3 +1,18 @@
+// show modal section 
+const openModal = (name, image, category, price, description) => {
+    document.getElementById("modal-img").src = image;
+    document.getElementById("modal-title").innerText = name;
+
+    document.getElementById("modal-category").innerText = `Category: ${category}`;
+    document.getElementById("modal-price").innerText = `Price :৳ ${price}`;
+    document.getElementById("modal-description").innerText = `Description : ${description}`;
+    document.getElementById("treeModal").showModal();
+};
+
+const closeModal = () => {
+    document.getElementById("treeModal").close();
+};
+
 // card-container
 
 const allTree = () => {
@@ -30,7 +45,10 @@ const displayCard = (ArrayOFobj) => {
         EachCard.innerHTML = `
         <div class="each-card bg-white h-100%">
                     <img src=" ${obj.image}" alt="" class="w-full h-40 rounded-xl">
-                    <h2 class="text-xl font-bold mt-2 pl-3">${obj.name}</h2>
+
+                    <h2 onclick="openModal('${obj.name}', '${obj.image}', '${obj.category}', ${obj.price}, \`${obj.description}\`)" 
+                    class="text-xl font-bold mt-2 pl-3 cursor-pointer hover:text-green-700">${obj.name}</h2>
+
                     <p class="mb-2 p-3">${obj.description} </p>
                     <div class="flex justify-between mx-3">
                         <p class="bg-amber-50 px-4 pt-1 rounded-xl border-1 text-green-500">${obj.category}</p>
@@ -48,6 +66,29 @@ const displayCard = (ArrayOFobj) => {
 allTree();
 
 
+//filter category section calling
+const load_category_filter = (categoryId) => {
+    const url = 'https://openapi.programming-hero.com/api/plants';
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const allTrees = data.plants;
+
+            // Find the category name using the ID
+            fetch('https://openapi.programming-hero.com/api/categories')
+                .then(res => res.json())
+                .then(categoryData => {
+                    const selectedCategory = categoryData.categories.find(cat => cat.id === categoryId);
+                    const categoryName = selectedCategory?.category_name;
+
+                    // Filter trees by category name
+                    const filteredTrees = allTrees.filter(tree => tree.category === categoryName);
+
+                    displayCard(filteredTrees);
+                });
+        });
+};
 
 // categories container
 
@@ -61,26 +102,37 @@ const categoryLoad = () => {
         });
 };
 
-const display = (categories) => { // all object
+
+const display = (categories) => {
 
     /*
     category_name: "Fruit Tree"
     id: 1
-    small_description: "Trees that bear edible fruits like mango, guava, and jackfruit. */
+     small_description: "Trees that bear edible fruits like mango, guava, and jackfruit. */
 
     const categoriesContainer = document.getElementById("category-container");
-
     categoriesContainer.innerHTML = "";
 
     categories.forEach((category) => {
+        const button = document.createElement('button');
+        button.className = "category-btn text-xl mt-1 rounded-xl w-full text-left p-2 hover:bg-green-400 hover:text-white";
+        button.innerText = category.category_name;
 
-        const Button = document.createElement('div');
-        Button.innerHTML = `
-    
-                        <button class="text-xl  hover:bg-green-700 mt-1 rounded-xl w-full text-left p-2 hover:text-white">${category.category_name}</button>
-                    </div>   
-    `;
-        categoriesContainer.appendChild(Button);
+        button.onclick = () => {
+            // Remove active class from all buttons
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('bg-green-700', 'text-white');
+            });
+
+            // Add active class to clicked button
+            button.classList.add('bg-green-700', 'text-white');
+
+            // Load filtered trees
+            load_category_filter(category.id);
+        };
+
+        categoriesContainer.appendChild(button);
     });
 };
- categoryLoad();
+categoryLoad();
+
